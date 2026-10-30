@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>惠宇謙恆 21A-1 360° 全景導覽</title>
+<style id="css">
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#151311;font-family:-apple-system,"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;color:#fff}
+#c{position:fixed;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;display:block}
+#c.drag{cursor:grabbing}
+#fade{position:fixed;inset:0;background:#151311 center/cover no-repeat;opacity:0;pointer-events:none;transition:opacity .35s}
+#fade.on{opacity:1}
+#fade span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.55);padding:9px 16px;border-radius:10px;font-size:14px}
+.glass{background:rgba(20,18,16,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#top{position:fixed;left:14px;top:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none}
+#title{padding:9px 15px;border-radius:12px;line-height:1.4;pointer-events:auto;max-width:70vw}
+#title b{font-size:15px;font-weight:600;display:block}
+#title small{font-size:13px;opacity:.8}
+#tools{display:flex;gap:8px;pointer-events:auto}
+button{font:inherit;color:inherit}
+.rb{width:42px;height:42px;border:0;border-radius:50%;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center}
+.rb:hover{background:rgba(20,18,16,.8)}
+.rb.on{background:rgba(255,255,255,.9);color:#111}
+#editBtn{width:auto;padding:0 16px;border-radius:21px;font-size:14px;display:none}
+#strip{position:fixed;left:0;right:0;bottom:0;padding:10px 12px 14px;display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;transition:transform .3s}
+#strip::-webkit-scrollbar{display:none}
+#strip.hide{transform:translateY(110%)}
+.sc{flex:0 0 auto;width:150px;border:2px solid transparent;border-radius:10px;overflow:hidden;cursor:pointer;background:#000;padding:0;text-align:left;position:relative}
+.sc img{display:block;width:100%;height:76px;object-fit:cover;opacity:.75;transition:opacity .2s}
+.sc:hover img,.sc.cur img{opacity:1}
+.sc.cur{border-color:#fff}
+.sc span{display:block;padding:6px 9px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(0,0,0,.6)}
+.sc i{position:absolute;left:6px;top:5px;font-style:normal;font-size:11px;background:rgba(0,0,0,.6);border-radius:8px;padding:1px 7px}
+#logo{position:fixed;right:18px;bottom:18px;width:84px;height:auto;pointer-events:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,.45));z-index:2}
+#strip{right:112px;border-top-right-radius:14px}
+#nav{position:fixed;right:14px;display:flex;gap:8px;transition:bottom .3s}
+#hint{position:fixed;left:50%;top:70px;transform:translateX(-50%);padding:6px 14px;border-radius:20px;font-size:13px;transition:opacity 1s;pointer-events:none;white-space:nowrap}
+/* editor */
+#ed{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+#ed.open{display:flex}
+#edBox{background:#fbf9f6;color:#222;border-radius:16px;width:min(560px,100%);max-height:100%;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+#edBox h3{margin:0;padding:18px 20px 6px;font-size:17px}
+#edBox .sub{padding:0 20px 12px;font-size:13px;color:#777}
+#edBody{overflow:auto;padding:0 20px}
+label.f{display:block;font-size:12px;color:#777;margin:10px 0 4px}
+input.t{width:100%;padding:9px 11px;border:1px solid #d9d4cc;border-radius:8px;font:inherit;font-size:15px;background:#fff;color:#222}
+input.t:focus{outline:2px solid #b89b72;border-color:transparent}
+.row{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #e7e2da;border-radius:10px;margin-bottom:8px;background:#fff}
+.row.cur{border-color:#b89b72;box-shadow:0 0 0 1px #b89b72}
+.row img{width:84px;height:42px;object-fit:cover;border-radius:6px;flex:0 0 auto}
+.row .n{flex:0 0 auto;width:20px;text-align:center;font-size:13px;color:#999}
+.row input{flex:1;min-width:0;padding:7px 9px;font-size:14px}
+.mv{display:flex;flex-direction:column;gap:2px}
+.mv button,.sv{border:1px solid #ddd6cc;background:#f5f2ed;border-radius:6px;cursor:pointer;color:#444}
+.mv button{width:28px;height:20px;font-size:11px;padding:0;line-height:1}
+.mv button:disabled{opacity:.3;cursor:default}
+.sv{font-size:12px;padding:5px 8px;white-space:nowrap}
+.sv.done{background:#e8f1e3;border-color:#bcd5ad;color:#3d6b29}
+#edFoot{display:flex;gap:10px;justify-content:flex-end;align-items:center;padding:14px 20px 18px;border-top:1px solid #eee;margin-top:10px}
+#edMsg{flex:1;font-size:13px;color:#a33}
+.pb{border:0;border-radius:9px;padding:10px 18px;font-size:14px;cursor:pointer}
+.pb.pri{background:#2b2723;color:#fff}
+.pb.sec{background:#ece8e2;color:#333}
+.pb:disabled{opacity:.5;cursor:default}
+@media (max-width:600px){#logo{width:62px;right:12px;bottom:14px}#strip{right:84px}.sc{width:118px}.sc img{height:58px}#title{max-width:58vw}.row img{width:60px;height:30px}.sv{font-size:11px;padding:5px 6px}}
+</style>
+</head>
+<body>
+<script type="application/json" id="state">{"title":"惠宇謙恆 21A-1","subtitle":"360° 全景導覽","scenes":[{"id":"s1","img":"p44.jpg","thumb":"t44.jpg","name":"客廳","yaw":-1.3,"pitch":0.05,"fov":95},{"id":"s2","img":"p51.jpg","thumb":"t51.jpg","name":"玄關","yaw":0,"pitch":0,"fov":95},{"id":"s3","img":"p52.jpg","thumb":"t52.jpg","name":"餐廳","yaw":0.1,"pitch":0,"fov":95},{"id":"s4","img":"p53.jpg","thumb":"t53.jpg","name":"走道","yaw":-1.7,"pitch":0,"fov":95},{"id":"s5","img":"p54.jpg","thumb":"t54.jpg","name":"主臥室","yaw":-1.6,"pitch":0,"fov":95}]}</script>
+<script id="app">
+(function(){
+const STATE=JSON.parse(document.getElementById('state').textContent);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+document.body.insertAdjacentHTML('beforeend',
+ '<canvas id="c"></canvas><div id="fade"><span>載入中…</span></div>'+
+ '<div id="top"><div id="title" class="glass"></div><div id="tools">'+
+ '<button class="rb glass" id="editBtn">編輯場景</button>'+
+ '<button class="rb glass" id="auto" title="自動旋轉">⟳</button>'+
+ '<button class="rb glass" id="fs" title="全螢幕">⛶</button></div></div>'+
+ '<div id="hint" class="glass">拖曳旋轉・滾輪或雙指縮放・下方切換場景</div>'+
+ '<div id="nav"><button class="rb glass" id="prev" title="上一個場景">‹</button><button class="rb glass" id="next" title="下一個場景">›</button><button class="rb glass" id="tog" title="顯示/隱藏場景列">☰</button></div>'+
+ '<div id="strip" class="glass"></div><img id="logo" src="logo.png" alt="Shisuo Studio">'+
+ '<div id="ed"><div id="edBox"><h3>編輯場景</h3><div class="sub">改名稱、用箭頭調整順序；轉到想要的角度後按「設為起始視角」。儲存後所有看網址的人都會看到新版本。</div><div id="edBody"></div>'+
+ '<div id="edFoot"><span id="edMsg"></span><button class="pb sec" id="edCancel">取消</button><button class="pb pri" id="edSave">儲存</button></div></div></div>');
+const $=id=>document.getElementById(id);
+document.title=STATE.title+' '+STATE.subtitle;
+
+/* ---------- WebGL viewer ---------- */
+const cv=$('c');
+const gl=cv.getContext('webgl',{antialias:false})||cv.getContext('experimental-webgl');
+if(!gl){$('fade').classList.add('on');$('fade').querySelector('span').textContent='此瀏覽器不支援 WebGL';return;}
+const vs='attribute vec2 p;varying vec2 v;void main(){v=p;gl_Position=vec4(p,0.,1.);}';
+const fs='#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n'+
+ 'varying vec2 v;uniform sampler2D A,B;uniform float yaw,pitch,tf,asp;'+
+ 'void main(){vec3 d=normalize(vec3(v.x*tf*asp,v.y*tf,-1.));'+
+ 'float cp=cos(pitch),sp=sin(pitch);d=vec3(d.x,d.y*cp+d.z*sp,-d.y*sp+d.z*cp);'+
+ 'float cy=cos(yaw),sy=sin(yaw);d=vec3(d.x*cy+d.z*sy,d.y,-d.x*sy+d.z*cy);'+
+ 'float u=atan(d.x,-d.z)/6.2831853+.5;float w=acos(clamp(d.y,-1.,1.))/3.1415927;'+
+ 'gl_FragColor=u<.5?texture2D(A,vec2(u*2.,w)):texture2D(B,vec2(u*2.-1.,w));}';
+function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);return o;}
+const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,vs));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(pr);gl.useProgram(pr);
+gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());
+gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+const loc=gl.getAttribLocation(pr,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+const U={};['A','B','yaw','pitch','tf','asp'].forEach(n=>U[n]=gl.getUniformLocation(pr,n));
+gl.uniform1i(U.A,0);gl.uniform1i(U.B,1);
+const tex=[gl.createTexture(),gl.createTexture()];
+tex.forEach((t,i)=>{gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,t);
+ [[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]].forEach(a=>gl.texParameteri(gl.TEXTURE_2D,a[0],a[1]));});
+const maxT=gl.getParameter(gl.MAX_TEXTURE_SIZE);
+const work=document.createElement('canvas');const wctx=work.getContext('2d');
+function upload(img){
+ const half=img.width/2,tw=Math.min(half,maxT),th=Math.min(img.height,maxT);
+ work.width=tw;work.height=th;
+ for(let i=0;i<2;i++){wctx.drawImage(img,i*half,0,half,img.height,0,0,tw,th);
+  gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,tex[i]);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,work);}
+ work.width=work.height=1;
+}
+let yaw=0,pitch=0,fov=95,auto=false,ready=false,dirty=true;
+function resize(){const r=Math.min(devicePixelRatio||1,2);cv.width=Math.round(innerWidth*r);cv.height=Math.round(innerHeight*r);gl.viewport(0,0,cv.width,cv.height);dirty=true;}
+addEventListener('resize',resize);resize();
+const pts=new Map();let sx,sy,syaw,spitch,p0,f0;
+const dist=()=>{const a=[...pts.values()];return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);};
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});setAuto(false);
+ if(pts.size===1){sx=e.clientX;sy=e.clientY;syaw=yaw;spitch=pitch;cv.classList.add('drag');}
+ if(pts.size===2){p0=dist();f0=fov;}});
+cv.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(pts.size===2){setFov(f0*p0/dist());return;}
+ if(pts.size!==1)return;const k=2*Math.tan(fov*Math.PI/360)/innerHeight;
+ yaw=syaw+(e.clientX-sx)*k;pitch=spitch-(e.clientY-sy)*k;dirty=true;});
+const up=e=>{pts.delete(e.pointerId);if(!pts.size)cv.classList.remove('drag');
+ if(pts.size===1){const p=[...pts.values()][0];sx=p.x;sy=p.y;syaw=yaw;spitch=pitch;}};
+cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+cv.addEventListener('wheel',e=>{e.preventDefault();setFov(fov+e.deltaY*0.04);},{passive:false});
+function setFov(f){fov=Math.max(30,Math.min(110,f));dirty=true;}
+function setAuto(a){auto=a;$('auto').classList.toggle('on',a);}
+$('auto').onclick=()=>setAuto(!auto);
+$('fs').onclick=()=>{try{const d=document.documentElement;
+ if(document.fullscreenElement)document.exitFullscreen();
+ else{const p=(d.requestFullscreen||d.webkitRequestFullscreen).call(d);if(p&&p.catch)p.catch(()=>{});}}catch(e){}};
+(function loop(){requestAnimationFrame(loop);
+ if(auto){yaw-=0.0012;dirty=true;}
+ if(!ready||!dirty)return;dirty=false;
+ pitch=Math.max(-1.5,Math.min(1.5,pitch));
+ gl.uniform1f(U.yaw,yaw);gl.uniform1f(U.pitch,pitch);
+ gl.uniform1f(U.tf,Math.tan(fov*Math.PI/360));gl.uniform1f(U.asp,cv.width/cv.height);
+ gl.drawArrays(gl.TRIANGLE_STRIP,0,4);})();
+
+/* ---------- scenes ---------- */
+let cur=-1,loadTok=0;const cache={};
+function getImg(src){if(!cache[src]){const im=new Image();cache[src]=new Promise((res,rej)=>{im.onload=()=>res(im);im.onerror=rej;});im.src=src;}return cache[src];}
+function show(i,fromHash){
+ const S=STATE.scenes;if(!S.length)return;i=(i+S.length)%S.length;
+ const s=S[i];cur=i;const tok=++loadTok;
+ renderStrip();renderTitle();
+ const f=$('fade');f.style.backgroundImage='url('+s.thumb+')';f.classList.add('on');
+ if(!fromHash&&location.hash!=='#'+s.id){try{history.replaceState(null,'','#'+s.id);}catch(e){location.hash=s.id;}}
+ getImg(s.img).then(im=>{if(tok!==loadTok)return;
+  upload(im);yaw=s.yaw;pitch=s.pitch;fov=s.fov;ready=true;dirty=true;
+  requestAnimationFrame(()=>f.classList.remove('on'));
+  const n=S[(i+1)%S.length];if(n)setTimeout(()=>getImg(n.img),800);
+ }).catch(()=>{if(tok===loadTok)f.querySelector('span').textContent='圖片載入失敗';});
+}
+function renderTitle(){const s=STATE.scenes[cur];
+ $('title').innerHTML='<b>'+esc(STATE.title)+'</b><small>'+esc(s?s.name:'')+'・'+(cur+1)+' / '+STATE.scenes.length+'</small>';}
+function renderStrip(){
+ $('strip').innerHTML=STATE.scenes.map((s,i)=>'<button class="sc'+(i===cur?' cur':'')+'" data-i="'+i+'"><i>'+(i+1)+'</i><img src="'+esc(s.thumb)+'" alt=""><span>'+esc(s.name)+'</span></button>').join('');
+ const c=$('strip').querySelector('.cur');if(c&&c.scrollIntoView)c.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'});
+ placeNav();}
+$('strip').onclick=e=>{const b=e.target.closest('.sc');if(b)show(+b.dataset.i);};
+$('prev').onclick=()=>show(cur-1);$('next').onclick=()=>show(cur+1);
+$('tog').onclick=()=>{$('strip').classList.toggle('hide');placeNav();};
+function placeNav(){const st=$('strip');const lg=$('logo');$('nav').style.bottom=(st.classList.contains('hide')?(lg.offsetHeight||70)+30:st.offsetHeight+10)+'px';}
+addEventListener('resize',placeNav);$('logo').onload=placeNav;
+addEventListener('keydown',e=>{if($('ed').classList.contains('open'))return;if(e.key==='ArrowRight')show(cur+1);if(e.key==='ArrowLeft')show(cur-1);});
+function fromHash(){const id=location.hash.slice(1);const i=STATE.scenes.findIndex(s=>s.id===id);return i;}
+addEventListener('hashchange',()=>{const i=fromHash();if(i>=0&&i!==cur)show(i,true);});
+setTimeout(()=>$('hint').style.opacity=0,4000);
+{const i=fromHash();show(i>=0?i:0,i>=0);}
+
+/* ---------- editor (owner) ---------- */
+let art=null,draft=null;
+if(window.claude&&claude.use){claude.use('artifact').then(a=>{if(a){art=a;$('editBtn').style.display='flex';}}).catch(()=>{});}
+let resume=false;
+$('editBtn').onclick=()=>{if(!resume||!draft){draft=JSON.parse(JSON.stringify(STATE));draft.scenes.forEach(s=>s._set=false);}
+ resume=false;$('editBtn').textContent='編輯場景';$('edMsg').textContent='';renderEd();$('ed').classList.add('open');};
+$('edCancel').addEventListener('click',()=>{resume=false;draft=null;$('editBtn').textContent='編輯場景';});
+$('edCancel').onclick=()=>$('ed').classList.remove('open');
+$('ed').onclick=e=>{if(e.target.id==='ed')$('ed').classList.remove('open');};
+function renderEd(){
+ const curId=STATE.scenes[cur]&&STATE.scenes[cur].id;
+ $('edBody').innerHTML='<label class="f">專案名稱</label><input class="t" id="edTitle" value="'+esc(draft.title)+'">'+
+  '<label class="f">場景（由上到下即顯示順序）</label>'+
+  draft.scenes.map((s,i)=>'<div class="row'+(s.id===curId?' cur':'')+'"><span class="n">'+(i+1)+'</span><img src="'+esc(s.thumb)+'" alt="">'+
+   '<input class="t" data-i="'+i+'" value="'+esc(s.name)+'">'+
+   '<div class="mv"><button data-up="'+i+'" '+(i===0?'disabled':'')+' title="上移">▲</button><button data-dn="'+i+'" '+(i===draft.scenes.length-1?'disabled':'')+' title="下移">▼</button></div>'+
+   (s.id===curId?'<button class="sv'+(s._set?' done':'')+'" data-sv="'+i+'">'+(s._set?'已設定 ✓':'設為起始視角')+'</button>':'<button class="sv" data-go="'+i+'" title="切換到此場景調整起始視角">前往</button>')+
+  '</div>').join('');
+}
+$('edBody').addEventListener('input',e=>{if(e.target.id==='edTitle')draft.title=e.target.value;else if(e.target.dataset.i)draft.scenes[+e.target.dataset.i].name=e.target.value;});
+$('edBody').addEventListener('click',e=>{const t=e.target,d=t.dataset,S=draft.scenes;
+ if(d.up){const i=+d.up;[S[i-1],S[i]]=[S[i],S[i-1]];renderEd();}
+ else if(d.dn){const i=+d.dn;[S[i+1],S[i]]=[S[i],S[i+1]];renderEd();}
+ else if(d.sv){const s=S[+d.sv];s.yaw=+yaw.toFixed(4);s.pitch=+pitch.toFixed(4);s.fov=Math.round(fov);s._set=true;renderEd();}
+ else if(d.go){const id=S[+d.go].id;$('ed').classList.remove('open');show(STATE.scenes.findIndex(x=>x.id===id));
+  resume=true;$('editBtn').textContent='回到編輯';}});
+$('edSave').onclick=async()=>{
+ if(!art)return;
+ const clean={title:(draft.title||'').trim()||STATE.title,subtitle:STATE.subtitle,
+  scenes:draft.scenes.map(s=>({id:s.id,img:s.img,thumb:s.thumb,name:(s.name||'').trim()||'未命名',yaw:s.yaw,pitch:s.pitch,fov:s.fov}))};
+ const json=JSON.stringify(clean).replace(/</g,'\\u003c');
+ const html='<!DOCTYPE html>\n<html lang="zh-Hant">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">\n<title>'+esc(clean.title+' '+clean.subtitle)+'</title>\n<style id="css">'+$('css').textContent+'</style>\n</head>\n<body>\n<script type="application/json" id="state">'+json+'<\/script>\n<script id="app">'+$('app').textContent+'<\/script>\n</body>\n</html>\n';
+ $('edSave').disabled=true;$('edMsg').style.color='#777';$('edMsg').textContent='儲存中…';
+ try{await art.publish(html);$('edMsg').style.color='#3d6b29';$('edMsg').textContent='已儲存，頁面即將重新載入';}
+ catch(err){const c=(err&&(err.code||err.message))||'';$('edSave').disabled=false;$('edMsg').style.color='#a33';
+  $('edMsg').textContent=/not_writer|not_granted/.test(c)?'只有這個網址的擁有者可以編輯。':/conflict/.test(c)?'頁面剛被更新過，重新載入後再試一次。':'儲存失敗，請再試一次。';}
+};
+})();
+</script>
+</body>
+</html>
